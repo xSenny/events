@@ -56,23 +56,18 @@ export async function POST(req: Request) {
 
     if(eventType === 'user.created') {
         const { id, email_addresses, image_url, first_name, last_name, username } = evt.data;
-        console.log(`Got an user with this email address ${email_addresses[0].email_address}`)
+
         const user = {
             clerkId: id,
             email: email_addresses[0].email_address,
             username: username!,
             firstName: first_name,
-            lastName: last_name || ' badacina ',
+            lastName: last_name,
             photo: image_url,
         }
 
-        console.log(user);
-
-        console.log(`Got an user object with this photo ${user.photo}`)
-
         const newUser = await createUser(user);
 
-        console.log(`Created a new User in the db, ${newUser._id}`)
         if(newUser) {
             await clerkClient.users.updateUserMetadata(id, {
                 publicMetadata: {
@@ -82,6 +77,29 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ message: 'OK', user: newUser })
+    }
+
+    if (eventType === 'user.updated') {
+        const {id, image_url, first_name, last_name, username } = evt.data
+
+        const user = {
+            firstName: first_name,
+            lastName: last_name,
+            username: username!,
+            photo: image_url,
+        }
+
+        const updatedUser = await updateUser(id, user)
+
+        return NextResponse.json({ message: 'OK', user: updatedUser })
+    }
+
+    if (eventType === 'user.deleted') {
+        const { id } = evt.data
+
+        const deletedUser = await deleteUser(id!)
+
+        return NextResponse.json({ message: 'OK', user: deletedUser })
     }
 
     return new Response('', { status: 200 })
