@@ -54,7 +54,33 @@ export async function POST(req: Request) {
     const { id } = evt.data;
     const eventType = evt.type;
 
-    console.log(`Got a new event of type ${eventType} with id ${id}`)
+    if(eventType === 'user.created') {
+        const { id, email_addresses, image_url, first_name, last_name, username } = evt.data;
+        console.log(`Got an user with this email address ${email_addresses[0].email_address}`)
+        const user = {
+            clerkId: id,
+            email: email_addresses[0].email_address,
+            username: username!,
+            firstName: first_name,
+            lastName: last_name,
+            photo: image_url,
+        }
+
+        console.log(`Got an user object with this photo ${user.photo}`)
+
+        const newUser = await createUser(user);
+
+        console.log(`Created a new User in the db, ${newUser._id}`)
+        if(newUser) {
+            await clerkClient.users.updateUserMetadata(id, {
+                publicMetadata: {
+                    userId: newUser._id
+                }
+            })
+        }
+
+        return NextResponse.json({ message: 'OK', user: newUser })
+    }
 
     return new Response('', { status: 200 })
 }
