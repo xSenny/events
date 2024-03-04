@@ -5,7 +5,9 @@ import {auth} from "@clerk/nextjs";
 const CreateEvent = () => {
 
     const {sessionClaims} = auth();
+    //get the user id from the session
     const userId = sessionClaims?.userId as string;
+    console.log(userId);
 
     return(
 
