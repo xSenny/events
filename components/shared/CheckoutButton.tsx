@@ -9,7 +9,7 @@ const CheckoutButton = ({event}: {event: IEvent}) => {
 
     const hasEventFinished = new Date(event.endDateTime) < new Date();
     const user = useUser();
-    const userId = user.user?.publicMetadata?.userId;
+    const userId = user.user?.publicMetadata?.userId as string;
 
     return (
         <div className={"flex items-center gap-3"}>
